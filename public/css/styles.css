@@ -1,0 +1,143 @@
+body{
+    background-color: #F0EDFF;
+    font-family: "Montserrat";
+}
+
+h3{
+    font-family: "Montserrat";
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #878CF6;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    text-align: center;
+}
+
+h2{
+    font-family: "montserrat";
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #F0EDFF;
+    padding-top: 15px;
+}
+
+/* Navbar */
+.navbar{
+    background-color: #5F5F90;
+}
+
+.navbar-brand{
+    padding-left: 30px;
+    color: #F0EDFF;
+    font-size: 1.6rem !important;
+}
+
+.nav-item{
+    padding-left: 20px;
+    padding-right: 10px;
+    font-size: 1.1rem !important;
+}
+
+/* Middle Container */
+
+.heading{
+    font-family: "Montserrat";
+    font-size: 2.75rem;
+    font-weight: 800;
+    color: #464555;
+    text-align: center;
+    padding-top: 30px;
+}
+
+.top-image{
+    width: 70%;
+    padding-left: 60px;
+}
+
+.home-text{
+    font-family: "Montserrat";
+    font-size: 2rem;
+    font-weight: 600;
+    color: #878CF6;
+    text-align: center;
+}
+
+.home-container{
+    padding-top: 4rem;
+}
+
+/* Icons */
+.icon{
+    width: 18%;
+}
+
+.feature-box{
+    text-align: center;
+    padding: 60px 0;
+}
+
+#features{
+    padding: 5rem 0 ;
+    background-color: #5F5F90;
+    margin-top: 2.5rem;
+}
+
+.feature-text{
+    font-family: "Montserrat";
+    font-size: 1rem;
+    color: white;
+}
+
+/* About Us */
+.skill-row{
+    text-align: left;
+    width: 70%;
+    margin: 100px auto 100px auto;
+    padding: 30px 0;
+}
+
+.about-img-left{
+    margin-right: 30px;
+    width: 25%;
+    float: left;
+}
+
+.about-img-right{
+    margin-right: 30px;
+    width: 25%;
+    float: right;
+}
+
+#about{
+    padding: 2rem 0;
+}
+
+/* Footer */
+
+#footer{
+    padding: 4%;
+    text-align: center;
+    background-color: #5F5F90;
+}
+
+.social-icon{
+    margin: 20px 10px;
+}
+
+
+
+/* Login form */
+.login-form{
+    margin: 7rem 30rem 4rem;
+}
+
+.remember-me-center{
+    padding: 0 4.5rem;
+    margin-bottom: 2rem;
+}
+
+
+/* Color Palette
+#5F5F90
+#878CF6
+#F0EDFF */

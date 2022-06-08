@@ -1,0 +1,59 @@
+<%- include("partials/header"); -%>
+
+
+    <form class="login-form">
+
+        <!--Name Input-->
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label" for="form1name1">First name</label>
+                <input class="form-control" type="text" id="form1name1">
+            </div>
+
+            <div class="col">
+                <label class="form-label" for="form1name2">Last name</label>
+                <input class="form-control" type="text" id="form1name2">
+            </div>
+        </div>
+
+        <!-- Email Input -->
+        <div class="form-outline mb-3">
+            <label for="form1email" class="form-label">Email address</label>
+            <input type="email" id="form1email" class="form-control">
+        </div>
+
+        <!-- Password input -->
+        <div class="form-outline mb-4">
+            <label for="form1password" class="form-label">Password</label>
+            <input type="password" id="form1password" class="form-control">
+        </div>
+
+
+
+
+        <!-- Submit button -->
+        <button type="button" class="btn btn-primary btn-block mb-4">Sign up</button>
+
+        <!--Register button-->
+        <div class="text-center">
+            <p>Already a member? <a href="login">Login</a></p>
+            <p>or sign up with: </p>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-facebook-f"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-google"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-twitter"></i>
+            </button>
+        </div>
+
+
+    </form>
+
+
+    <%- include("partials/footer"); -%>

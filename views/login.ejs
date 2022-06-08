@@ -1,0 +1,55 @@
+<%- include("partials/header"); -%>
+
+
+    <form class="login-form">
+
+        <!-- Email Input -->
+        <div class="form-outline mb-3">
+            <label for="form1email" class="form-label">Email address</label>
+            <input type="email" id="form1email" class="form-control">
+        </div>
+
+        <!-- Password input -->
+        <div class="form-outline mb-4">
+            <label for="form1password" class="form-label">Password</label>
+            <input type="password" id="form1password" class="form-control">
+        </div>
+
+        <div class="row">
+            <div class="col form-check remember-me-center">
+                <label class="form-check-label" for="form1checkbox">Remember me</label>
+                <input class="form-check-input" type="checkbox" id="form1checkbox">
+            </div>
+
+            <div class="col remember-me-center">
+                <a href="">Forgot password?</a>
+            </div>
+        </div>
+
+
+        <!-- Submit button -->
+        <button type="button" class="btn btn-primary btn-block mb-4">Sign in</button>
+
+        <!--Register button-->
+        <div class="text-center">
+            <p>Not a member? <a href="register">Register</a></p>
+            <p>or sign in with: </p>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-facebook-f"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-google"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-twitter"></i>
+            </button>
+        </div>
+
+
+    </form>
+
+
+    <%- include("partials/footer"); -%>
