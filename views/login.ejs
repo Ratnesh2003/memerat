@@ -1,18 +1,18 @@
 <%- include("partials/header"); -%>
 
 
-    <form class="login-form">
+    <form class="login-form" method="post" action="/login">
 
         <!-- Email Input -->
         <div class="form-outline mb-3">
             <label for="form1email" class="form-label">Email address</label>
-            <input type="email" id="form1email" class="form-control">
+            <input type="email" id="form1email" class="form-control" name="username">
         </div>
 
         <!-- Password input -->
         <div class="form-outline mb-4">
             <label for="form1password" class="form-label">Password</label>
-            <input type="password" id="form1password" class="form-control">
+            <input type="password" id="form1password" class="form-control" name="password">
         </div>
 
         <div class="row">
@@ -28,7 +28,7 @@
 
 
         <!-- Submit button -->
-        <button type="button" class="btn btn-primary btn-block mb-4">Sign in</button>
+        <button type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
 
         <!--Register button-->
         <div class="text-center">
