@@ -136,7 +136,15 @@ h2{
     margin-bottom: 2rem;
 }
 
+/* PlayHome */
+a {
+    text-decoration: none;
+    color: #878CF6;    
+}
 
+a:hover {
+    color: #797EDC;
+}
 /* Color Palette
 #5F5F90
 #878CF6

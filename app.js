@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const https = require("https");
 // Authentication
 const mongoose = require("mongoose");
 const session = require("express-session");
@@ -90,24 +91,24 @@ passport.use(new GoogleStrategy({
         const profilePhoto = profile.photos[0].value;
         const source = "google";
 
-        
+
 
 
         const currentUser = await User.findOne({ username });
         console.log(currentUser);
 
         if (!currentUser) {
-            
-                const newUser = new User({
-                    id, username, firstName, lastName, profilePhoto, source: "google"
-                });
-                console.log(newUser);
-                
-                newUser.save()
-                return done(null, newUser);
-            }
-            
-        
+
+            const newUser = new User({
+                id, username, firstName, lastName, profilePhoto, source: "google"
+            });
+            console.log(newUser);
+
+            newUser.save()
+            return done(null, newUser);
+        }
+
+
 
         if (currentUser.source != "google") {
             //return error
@@ -134,6 +135,41 @@ app.get("/login", function (req, res) {
     res.render("login");
 });
 
+app.get("/vote", function (req, res) {
+    if (req.isAuthenticated()) {
+        res.render("vote");
+    } else {
+        res.redirect("/login");
+    }
+});
+
+//Caption the image page and routes
+app.get("/caption", function (req, res) {
+    if (req.isAuthenticated()) {
+
+
+        https.get("https://alpha-meme-maker.herokuapp.com/", function (response) {
+            let chunks = [];
+
+            response.on("data", function (data) {
+                chunks.push(data);
+            }).on("end", function () {
+                let data = Buffer.concat(chunks);
+                const memeData = JSON.parse(data)
+                const imageLink = memeData.data[4].image;
+                console.log(imageLink);
+                res.render("caption", { imagevar: imageLink });
+            })
+
+        })      
+    } else {
+    res.redirect("/login");
+}
+});
+
+
+
+
 app.get("/play", function (req, res) {
     if (req.isAuthenticated()) {
         res.render("play");
@@ -154,6 +190,8 @@ app.get("/auth/google/play",
     function (req, res) {
         res.redirect("/play");
     });
+
+
 
 
 // Register route

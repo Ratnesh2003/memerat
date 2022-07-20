@@ -1,0 +1,51 @@
+<%- include("partials/playHeader") %>
+
+    <section>
+
+        <!-- <h1 class="heading">Caption the Image</h1> -->
+        <!-- <img src="<%= imagevar %>" > -->
+
+
+
+
+        <h1 class="heading">Caption the Image</h1>
+
+
+        <div class="container">
+            <div class="row home-container">
+                <div class="col-lg-6 col-sm-12">
+                    <img class="top-image" width="auto" height="85%" src="<%= imagevar %>" alt="">
+                </div>
+
+                <div class="col-lg-6 col-sm-12">
+
+                    <p class="home-text">Instructions</p>
+                    <ul>
+                        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
+                        <li>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</li>
+                        <li>Ut enim ad minim veniam</li>
+                        <li>quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
+                        <li>Duis aute irure dolor in reprehenderit in voluptate</li>
+                    </ul>
+
+
+                    <form method="post" action="/caption">
+
+                        <div class="form-outline mb-3">
+                            <label for="form1caption" class="form-label">Caption</label>
+                            <input type="text" id="form1caption" class="form-control" name="captionsub">
+                        </div>
+
+                    </form>
+
+                    <button type="submit" class="btn btn-primary btn-block mb-4">Add</button>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+
+
+
+    <%- include("partials/footer") %>
