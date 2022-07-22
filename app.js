@@ -161,14 +161,11 @@ app.get("/caption", function (req, res) {
                 res.render("caption", { imagevar: imageLink });
             })
 
-        })      
+        })
     } else {
-    res.redirect("/login");
-}
+        res.redirect("/login");
+    }
 });
-
-
-
 
 app.get("/play", function (req, res) {
     if (req.isAuthenticated()) {
@@ -190,9 +187,6 @@ app.get("/auth/google/play",
     function (req, res) {
         res.redirect("/play");
     });
-
-
-
 
 // Register route
 app.post("/register", function (req, res) {
@@ -233,6 +227,85 @@ app.post("/login", function (req, res) {
             });
         }
     });
+});
+
+
+var d = new Date();
+//d.setDate(d.getDate() + 1);
+var contestDate = d.toLocaleDateString('en-GB');
+console.log(contestDate);
+
+//Contest page model define.
+const contestSchema = new mongoose.Schema({
+    username: String,
+    firstName: String,
+    lastName: String,
+    [contestDate]: [{ choice: Number, captionOrUsername: String }]
+});
+
+const Contest = new mongoose.model("Contest", contestSchema);
+
+
+//Caption save POST method
+// app.post("/caption", async (req, res) => {
+
+//     const checkUsername = req.user.username;
+//     const currentUsername = await Contest.findOne({ username: checkUsername });
+//     console.log(currentUsername);
+//     //checking if the user has already submittd the caption.
+//     if (!currentUsername) {
+//         const newContest = new Contest({
+//             username: req.user.username,
+//             firstName: req.user.firstName,
+//             lastName: req.user.lastName,
+//             contestDate: [{ choice: 1, captionOrUsername: req.body.captionsub }]
+//         });
+//         newContest.save();
+//         res.send("Added caption sucessfully.");
+//     } else {
+//         res.send("You have already submitted today's caption.")
+//     }
+// });
+
+
+
+app.post("/caption", async (req, res) => {
+
+    const checkUsername = req.user.username;
+    const currentUsername = await Contest.findOne({ username: checkUsername });
+
+    //checking if the user has already submittd the caption.
+    if (!currentUsername) {
+        const newContest = new Contest({
+            username: req.user.username,
+            firstName: req.user.firstName,
+            lastName: req.user.lastName,
+            [contestDate]: [{ choice: 1, captionOrUsername: req.body.captionsub }]
+        });
+        newContest.save();
+        res.send("Added caption sucessfully.");
+    } else {
+        const checkCurrentDate = await Contest.findOne({username: checkUsername, [contestDate]: { $exists: true}});
+        if (!checkCurrentDate) {
+            Contest.updateOne(
+                {username: req.user.username},
+                {[contestDate]: [{choice: 1, captionOrUsername: req.body.captionsub}]}, function(err, cont){
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        console.log("Updated items: ", cont);
+                        res.send("Added caption successfully.")
+                    }
+                }
+                );
+            
+
+        } else {
+            res.send("You have already submitted today's caption.")
+        }
+
+        
+    }
 });
 
 
