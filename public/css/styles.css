@@ -54,6 +54,18 @@ h2{
     padding-left: 60px;
 }
 
+/* Voting page reapeating image style */
+.caption-image{
+    width: 80%;
+    padding: 15px;
+    object-fit: fill;
+}
+
+
+#captions-list{
+    padding: 60px 100px;
+}
+
 .home-text{
     font-family: "Montserrat";
     font-size: 2rem;

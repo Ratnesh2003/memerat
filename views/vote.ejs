@@ -1,13 +1,29 @@
-<%- include("partials/playHeader") %> 
-
-<section>
-
+<%- include("partials/playHeader") %>
     <h1 class="heading">Vote your favourite caption</h1>
+    <section id="captions-list">
+
+        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+
+            <% for (var i=0; i<allCaptions.length; i++){ %>
+
+
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="card mb-4 rounded-3 shadow-sm">
+                        <div class="card-header py-3">
+                            <h4 class="my-0 fw-normal">
+                                <%= allCaptions[i] %>
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <img class="caption-image" src="memrat.jpg" alt="">
+                            <button type="button" class="w-25 btn btn-lg btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
+
+                <% } %>
+    </section>
 
 
 
-</section>
-
-
-
-<%- include("partials/footer") %> 
+    <%- include("partials/footer") %>

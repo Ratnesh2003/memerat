@@ -10,6 +10,7 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
+const { type } = require('os');
 
 
 
@@ -135,9 +136,71 @@ app.get("/login", function (req, res) {
     res.render("login");
 });
 
-app.get("/vote", function (req, res) {
+
+var d = new Date();
+//d.setDate(d.getDate() + 3);
+var contestDate = d.toLocaleDateString('en-GB');
+console.log(contestDate);
+
+//Contest page model define.
+const contestSchema = new mongoose.Schema({
+    username: String,
+    firstName: String,
+    lastName: String,
+    [contestDate]: {
+        choice: Number,
+        votes: { type: Number, default: 0 },
+        captionOrUsername: String
+    }
+});
+
+const Contest = new mongoose.model("Contest", contestSchema);
+
+
+//Vote page get request
+app.get("/vote", async (req, res) => {
     if (req.isAuthenticated()) {
-        res.render("vote");
+        let captions = [];
+        const Docs = await Contest.find({"[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0 });
+        // console.log(Docs);
+        const lengthOfDocs = Docs.length;
+        // console.log(lengthOfDocs);
+
+        for(let i = 0; i<lengthOfDocs; i++ ) {
+            const checkCurrentDate = await Contest.find({"[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0 });
+            var singleCaption =  checkCurrentDate[i][contestDate].captionOrUsername;
+            // console.log(singleCaption);
+            if (singleCaption === undefined) {
+                console.log("Undefined Data");
+            } else {
+                captions.push(singleCaption);
+            }
+        }
+
+        // console.log(captions);
+        res.render("vote", {allCaptions: captions});
+
+
+        // for(let i = 0; i<lengthOfDocs; i++ ) {
+        //     const checkCurrentDate = await Contest.findOne({"[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0 });
+        //     console.log(checkCurrentDate[contestDate].captionOrUsername);
+        //     captions.push(checkCurrentDate);
+
+        // }
+        //console.log(captions);
+        
+        
+        
+        // const captionSingle = await Contest.findOne({}, function(err, result){
+        //     if (err) {
+        //         console.log(err);
+        //     } else {
+        //         console.log(result);
+        //     }
+        // }).clone();
+
+        
+        // res.render("vote");
     } else {
         res.redirect("/login");
     }
@@ -230,20 +293,9 @@ app.post("/login", function (req, res) {
 });
 
 
-var d = new Date();
-//d.setDate(d.getDate() + 1);
-var contestDate = d.toLocaleDateString('en-GB');
-console.log(contestDate);
 
-//Contest page model define.
-const contestSchema = new mongoose.Schema({
-    username: String,
-    firstName: String,
-    lastName: String,
-    [contestDate]: [{ choice: Number, captionOrUsername: String }]
-});
 
-const Contest = new mongoose.model("Contest", contestSchema);
+
 
 
 //Caption save POST method
@@ -280,16 +332,17 @@ app.post("/caption", async (req, res) => {
             username: req.user.username,
             firstName: req.user.firstName,
             lastName: req.user.lastName,
-            [contestDate]: [{ choice: 1, captionOrUsername: req.body.captionsub }]
+            [contestDate]: { choice: 1, captionOrUsername: req.body.captionsub }
         });
         newContest.save();
         res.send("Added caption sucessfully.");
     } else {
         const checkCurrentDate = await Contest.findOne({username: checkUsername, [contestDate]: { $exists: true}});
+        console.log(checkCurrentDate);
         if (!checkCurrentDate) {
             Contest.updateOne(
                 {username: req.user.username},
-                {[contestDate]: [{choice: 1, captionOrUsername: req.body.captionsub}]}, function(err, cont){
+                {[contestDate]: {choice: 1, captionOrUsername: req.body.captionsub}}, function(err, cont){
                     if(err) {
                         console.log(err);
                     } else {
