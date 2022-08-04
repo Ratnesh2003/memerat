@@ -1,5 +1,7 @@
 body{
-    background-color: #F0EDFF;
+    /* background-color: #F0EDFF; */
+    background-color: #0e141b;
+    color: #dce0e3;
     font-family: "Montserrat";
 }
 
@@ -7,7 +9,8 @@ h3{
     font-family: "Montserrat";
     font-size: 1.5rem;
     font-weight: 400;
-    color: #878CF6;
+    /* color: #878CF6; */
+    color: #ed0f3c;
     padding-top: 2rem;
     padding-bottom: 2rem;
     text-align: center;
@@ -17,18 +20,28 @@ h2{
     font-family: "montserrat";
     font-size: 1.8rem;
     font-weight: 900;
-    color: #F0EDFF;
+    /* color: #F0EDFF; */
+    color: #ed0f3c;
     padding-top: 15px;
 }
 
 /* Navbar */
 .navbar{
-    background-color: #5F5F90;
+    /* background-color: #5F5F90; */
+    background-color: #0e141b;
 }
 
 .navbar-brand{
     padding-left: 30px;
-    color: #F0EDFF;
+    /* color: #F0EDFF; */
+    color: #dce0e3;
+    font-size: 1.6rem !important;
+}
+
+.navbar-brand:hover{
+    padding-left: 30px;
+    /* color: #F0EDFF; */
+    color: #ed0f3c;
     font-size: 1.6rem !important;
 }
 
@@ -38,13 +51,22 @@ h2{
     font-size: 1.1rem !important;
 }
 
+.nav-link{
+    color: #dce0e3;
+}
+
+.nav-link:hover{
+    color: #ed0f3c;
+}
+
 /* Middle Container */
 
 .heading{
     font-family: "Montserrat";
     font-size: 2.75rem;
     font-weight: 800;
-    color: #464555;
+    /* color: #464555; */
+    color: #dce0e3;
     text-align: center;
     padding-top: 30px;
 }
@@ -70,7 +92,8 @@ h2{
     font-family: "Montserrat";
     font-size: 2rem;
     font-weight: 600;
-    color: #878CF6;
+    /* color: #878CF6; */
+    color: #ed0f3c;
     text-align: center;
 }
 
@@ -90,7 +113,8 @@ h2{
 
 #features{
     padding: 5rem 0 ;
-    background-color: #5F5F90;
+    /* background-color: #5F5F90; */
+    background-color: #0e141b;
     margin-top: 2.5rem;
 }
 
@@ -129,7 +153,8 @@ h2{
 #footer{
     padding: 4%;
     text-align: center;
-    background-color: #5F5F90;
+    /* background-color: #5F5F90; */
+    background-color: #182635;
 }
 
 .social-icon{
@@ -151,13 +176,24 @@ h2{
 /* PlayHome */
 a {
     text-decoration: none;
-    color: #878CF6;    
+    color: #dce0e3;    
 }
 
 a:hover {
-    color: #797EDC;
+    color: #ed0f3c;
+}
+
+i {
+    color: #dce0e3;
 }
 /* Color Palette
 #5F5F90
 #878CF6
 #F0EDFF */
+
+/* New Palette 
+#0e141b
+#dce0e3
+#ed0f3c
+#182635
+#ffe003 */

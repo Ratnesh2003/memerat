@@ -150,7 +150,8 @@ const contestSchema = new mongoose.Schema({
     [contestDate]: {
         choice: Number,
         votes: { type: Number, default: 0 },
-        captionOrUsername: String
+        captionOrUsername: String,
+        votedUsername: String
     }
 });
 
@@ -158,49 +159,44 @@ const Contest = new mongoose.model("Contest", contestSchema);
 
 
 //Vote page get request
+let captions = [];
 app.get("/vote", async (req, res) => {
     if (req.isAuthenticated()) {
-        let captions = [];
-        const Docs = await Contest.find({"[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0 });
-        // console.log(Docs);
+        captions = [];
+        
+        const Docs = await Contest.find({[contestDate]: { $exists: true}, "[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0, username: 1 });
+        //console.log(Docs);
         const lengthOfDocs = Docs.length;
-        // console.log(lengthOfDocs);
+        console.log(lengthOfDocs);
 
         for(let i = 0; i<lengthOfDocs; i++ ) {
-            const checkCurrentDate = await Contest.find({"[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0 });
+            // const checkCurrentDate = await Contest.find({[contestDate]: { $exists: true}, "[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0, username: 1 });
+            const checkCurrentDate = await Contest.find(
+                { [contestDate]: { $exists: true}, choice: 1 },
+                { [ contestDate]: {captionOrUsername: 1}, _id: 0, username: 1}     
+            );
+            //console.log(checkCurrentDate);
+            //res.send(checkCurrentDate);
             var singleCaption =  checkCurrentDate[i][contestDate].captionOrUsername;
-            // console.log(singleCaption);
-            if (singleCaption === undefined) {
-                console.log("Undefined Data");
-            } else {
-                captions.push(singleCaption);
+            var thisCaption = {
+                usr: checkCurrentDate[i].username,
+                cpt: checkCurrentDate[i][contestDate].captionOrUsername
+            }
+            
+            
+            //console.log(singleCaption);
+            if (singleCaption != undefined) {
+                //if(thisCaption.cpt != "" ){
+                    captions.push(thisCaption);
+                //}
+                
             }
         }
 
-        // console.log(captions);
+        console.log(captions);
+        //console.log(thisCaption);
         res.render("vote", {allCaptions: captions});
-
-
-        // for(let i = 0; i<lengthOfDocs; i++ ) {
-        //     const checkCurrentDate = await Contest.findOne({"[contestDate].choice" : 1 }, { [contestDate]: {captionOrUsername: 1}, _id: 0 });
-        //     console.log(checkCurrentDate[contestDate].captionOrUsername);
-        //     captions.push(checkCurrentDate);
-
-        // }
-        //console.log(captions);
         
-        
-        
-        // const captionSingle = await Contest.findOne({}, function(err, result){
-        //     if (err) {
-        //         console.log(err);
-        //     } else {
-        //         console.log(result);
-        //     }
-        // }).clone();
-
-        
-        // res.render("vote");
     } else {
         res.redirect("/login");
     }
@@ -209,6 +205,7 @@ app.get("/vote", async (req, res) => {
 //Caption the image page and routes
 app.get("/caption", function (req, res) {
     if (req.isAuthenticated()) {
+        // res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"})
 
 
         https.get("https://alpha-meme-maker.herokuapp.com/", function (response) {
@@ -219,7 +216,7 @@ app.get("/caption", function (req, res) {
             }).on("end", function () {
                 let data = Buffer.concat(chunks);
                 const memeData = JSON.parse(data)
-                const imageLink = memeData.data[4].image;
+                const imageLink = memeData.data[19].image;
                 console.log(imageLink);
                 res.render("caption", { imagevar: imageLink });
             })
@@ -292,35 +289,7 @@ app.post("/login", function (req, res) {
     });
 });
 
-
-
-
-
-
-
-//Caption save POST method
-// app.post("/caption", async (req, res) => {
-
-//     const checkUsername = req.user.username;
-//     const currentUsername = await Contest.findOne({ username: checkUsername });
-//     console.log(currentUsername);
-//     //checking if the user has already submittd the caption.
-//     if (!currentUsername) {
-//         const newContest = new Contest({
-//             username: req.user.username,
-//             firstName: req.user.firstName,
-//             lastName: req.user.lastName,
-//             contestDate: [{ choice: 1, captionOrUsername: req.body.captionsub }]
-//         });
-//         newContest.save();
-//         res.send("Added caption sucessfully.");
-//     } else {
-//         res.send("You have already submitted today's caption.")
-//     }
-// });
-
-
-
+//Post request on Caption page
 app.post("/caption", async (req, res) => {
 
     const checkUsername = req.user.username;
@@ -332,7 +301,7 @@ app.post("/caption", async (req, res) => {
             username: req.user.username,
             firstName: req.user.firstName,
             lastName: req.user.lastName,
-            [contestDate]: { choice: 1, captionOrUsername: req.body.captionsub }
+            [contestDate]: { choice: 1, votes: 0, captionOrUsername: req.body.captionsub}
         });
         newContest.save();
         res.send("Added caption sucessfully.");
@@ -342,7 +311,7 @@ app.post("/caption", async (req, res) => {
         if (!checkCurrentDate) {
             Contest.updateOne(
                 {username: req.user.username},
-                {[contestDate]: {choice: 1, captionOrUsername: req.body.captionsub}}, function(err, cont){
+                {[contestDate]: {choice: 1, votes: 0, captionOrUsername: req.body.captionsub}}, function(err, cont){
                     if(err) {
                         console.log(err);
                     } else {
@@ -361,6 +330,62 @@ app.post("/caption", async (req, res) => {
     }
 });
 
+
+//POST request on Vote page
+app.post("/vote", async (req, res) => {
+    const votingUser = req.user.username;
+    const votedUser = captions[parseInt(req.body.captionID)].usr
+    console.log(votingUser);
+    console.log(votedUser);
+
+    //Updating details of voting user.
+
+    const checkUsername = req.user.username;
+    const currentUsername = await Contest.findOne({ username: checkUsername });
+
+    if (!currentUsername) {
+        const newContest = new Contest({
+            username: req.user.username,
+            firstName: req.user.firstName,
+            lastName: req.user.lastName,
+            [contestDate]: { choice: 2, votes: 0, votedUsername: votedUser }
+        });
+        newContest.save();
+        console.log("Changed value of voting user successfully.")
+    } else {
+        Contest.updateOne(
+            {username: votingUser},
+            {[contestDate]: {choice: 2, votes: 0, votedUsername: votedUser}}, function(err, cont){
+                if(err) {
+                    console.log(err);
+                } else {
+                    console.log("Changed value of voting user successfully.");
+                }
+            }
+        )
+
+    }
+
+
+    //Getting current votes of the voteduser.
+    const beingVotedUser = await Contest.findOne({username: votedUser});
+    var currentVotes = beingVotedUser[contestDate].votes;
+    const caption = beingVotedUser[contestDate].captionOrUsername;
+    currentVotes++;
+    console.log(currentVotes);
+
+    //Updating votes    
+    Contest.updateOne(
+        {username: votedUser},
+        {[contestDate]: {choice: 1, votes: currentVotes, captionOrUsername: caption}}, function(err, cont){
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("Votes updated successfully.")
+            }
+        }
+    );
+})
 
 
 app.listen(3000, function (req, res) {
