@@ -10,13 +10,13 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
+const { stringify } = require('querystring');
 
 
 
 
 
 const app = express();
-
 
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
@@ -31,7 +31,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/memeUserDB");
+mongoose.connect("mongodb://localhost:27017/memeUserDBTest");
 
 const userSchema = new mongoose.Schema({
 
@@ -108,8 +108,6 @@ passport.use(new GoogleStrategy({
             return done(null, newUser);
         }
 
-
-
         if (currentUser.source != "google") {
             //return error
             return done(null, false, { message: `You have previously signed up with a different signin method` });
@@ -118,8 +116,6 @@ passport.use(new GoogleStrategy({
         currentUser.lastVisited = new Date();
         return done(null, currentUser);
     }
-
-
 ));
 
 
@@ -131,13 +127,23 @@ app.get("/register", function (req, res) {
     res.render("register")
 });
 
-app.get("/login", function (req, res) {
+app.get("/login", async (req, res) => {
+
+    let Docs = [];
+    var allDocs = await Contest.find().lean();
+    allDocs.forEach(elem1 => {
+        elem1.contests.forEach(elem2 => {
+            if (elem2.date == contestDate && elem2.choice == 1) {
+                console.log(elem2.captionOrUsername);
+            }
+        })
+    });
     res.render("login");
 });
 
 
 var d = new Date();
-//d.setDate(d.getDate() + 3);
+//d.setDate(d.getDate() + 1);
 var contestDate = d.toLocaleDateString('en-GB');
 console.log(contestDate);
 
@@ -146,12 +152,13 @@ const contestSchema = new mongoose.Schema({
     username: String,
     firstName: String,
     lastName: String,
-    [contestDate]: {
+    contests: [{
+        date: String,
         choice: Number,
         votes: { type: Number, default: 0 },
         captionOrUsername: String,
         votedUsername: String
-    }
+    }]
 });
 
 const Contest = new mongoose.model("Contest", contestSchema);
@@ -159,81 +166,121 @@ const Contest = new mongoose.model("Contest", contestSchema);
 
 //Vote page get request
 let captions = [];
+var thisCaption = {};
 app.get("/vote", async (req, res) => {
     if (req.isAuthenticated()) {
 
         const checkUsername = req.user.username;
-        const currentUsername = await Contest.findOne({ username: checkUsername });
+        const currentUsername = await Contest.findOne({ username: checkUsername, });
 
-        if(!currentUsername) {
+        if (!currentUsername) {
+            console.log("CURRENT USER DOES NOT EXIST");
 
             const newContest = new Contest({
                 username: req.user.username,
                 firstName: req.user.firstName,
                 lastName: req.user.lastName,
-                [contestDate]: { choice: 2, votes: 0, votedUsername: "" }
+                contests: [{ date: contestDate, choice: 2, votes: 0, votedUsername: "" }]
             });
             newContest.save();
-
             captions = [];
+            var allDocs = await Contest.find().lean();
+            allDocs.forEach(elem1 => {
+                elem1.contests.forEach(elem2 => {
+                    if (elem2.date == contestDate && elem2.choice == 1) {
+                        thisCaption = {
+                            usr: elem1.username,
+                            cpt: elem2.captionOrUsername
+                        }
 
-            const Docs = await Contest.find({ [contestDate]: { $exists: true }, "[contestDate].choice": 1 }, { [contestDate]: { captionOrUsername: 1 }, _id: 0, username: 1 });
-            const lengthOfDocs = Docs.length;
-            
-    
-            for (let i = 0; i < lengthOfDocs; i++) {
-                const checkCurrentDate = await Contest.find(
-                    { [contestDate]: { $exists: true }, choice: 1 },
-                    { [contestDate]: { captionOrUsername: 1 }, _id: 0, username: 1 }
-                );
-                var singleCaption = checkCurrentDate[i][contestDate].captionOrUsername;
-                var thisCaption = {
-                    usr: checkCurrentDate[i].username,
-                    cpt: checkCurrentDate[i][contestDate].captionOrUsername
-                }
-    
-                if (singleCaption != undefined) {
-                    captions.push(thisCaption);
-                }
+                        captions.push(thisCaption);
+                        thisCaption = {};
+                    }
+                })
+                
+            });
+            res.render("vote", { allCaptions: captions });
+            console.log("Captions: ", captions);
+
+        } else {
+            var currentChoice = -1;
+            const checkCurrentDate = await Contest.findOne({ username: checkUsername });
+            thisDate = checkCurrentDate.contests.at(-1).date;
+            if (thisDate == contestDate) {
+                currentChoice = checkCurrentDate.contests.at(-1).choice;
             }
 
-            res.render("vote", {allCaptions: captions});
-            console.log(captions);
-            
-        } else {
-            var currentChoice = currentUsername[contestDate].choice;
-            if(currentChoice == 1){
+            if (currentChoice == 1) {
+                console.log("CURRENT CHOICE 1");
                 res.send("You have already given the caption today.")
             }
-            if(currentChoice == 2){
+            else if (currentChoice == 2) {
+                console.log("CURRENT CHOICE 2");
                 captions = [];
+                //var i = 0;
 
-                const Docs = await Contest.find({ [contestDate]: { $exists: true }, "[contestDate].choice": 1 }, { [contestDate]: { captionOrUsername: 1 }, _id: 0, username: 1 });
-                const lengthOfDocs = Docs.length;
-                
-        
-                for (let i = 0; i < lengthOfDocs; i++) {
-                    const checkCurrentDate = await Contest.find(
-                        { [contestDate]: { $exists: true }, choice: 1 },
-                        { [contestDate]: { captionOrUsername: 1 }, _id: 0, username: 1 }
+                var allDocs = await Contest.find().lean();
+                allDocs.forEach(elem1 => {
+                    elem1.contests.forEach(elem2 => {
+                        if (elem2.date == contestDate && elem2.choice == 1) {
+                            console.log(elem1.username)
+                            console.log(elem2.captionOrUsername)
+                            thisCaption = {
+                                usr: elem1.username,
+                                cpt: elem2.captionOrUsername
+                            }
+
+                            captions.push(thisCaption);
+                            thisCaption = {};
+                        }
+                    })
+                });
+
+
+                res.render("vote", { allCaptions: captions });
+                console.log("Captions in 2nd choice: ", captions);
+            }
+            else if (currentChoice == 3) {
+                console.log("CURRENT CHOICE 3");
+                res.send("You have already voted today.")
+            } else {
+                console.log("THIS ONE");
+                captions = [];
+                var allDocs = await Contest.find().lean();
+                allDocs.forEach(elem1 => {
+                    elem1.contests.forEach(elem2 => {
+                        if (elem2.date == contestDate && elem2.choice == 1) {
+                            thisCaption = {
+                                usr: elem1.username,
+                                cpt: elem2.captionOrUsername
+                            }
+                        }
+                    })
+                    captions.push(thisCaption);
+                    thisCaption = {};
+                });
+
+
+                const checkCurrentDate = await Contest.findOne({ username: checkUsername });
+                const thisDate = checkCurrentDate.contests.at(-1).date;
+                if (thisDate != contestDate) {
+                    var updateContest = { $push: { contests: [{ date: contestDate, choice: 2, votes: 0, votedUser: "" }] } };
+                    Contest.updateOne(
+                        { username: req.user.username },
+                        updateContest, function (err, cont) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("Updated items: ", cont);
+                                res.render("vote", { allCaptions: captions });
+                            }
+                        }
                     );
-                    var singleCaption = checkCurrentDate[i][contestDate].captionOrUsername;
-                    var thisCaption = {
-                        usr: checkCurrentDate[i].username,
-                        cpt: checkCurrentDate[i][contestDate].captionOrUsername
-                    }
-        
-                    if (singleCaption != undefined) {
-                        captions.push(thisCaption);
-                    }
+                } else {
+                    res.render("vote", { allCaptions: captions });
                 }
 
-                res.render("vote", {allCaptions: captions});
-                console.log(captions);
-                
-            }
-            if(currentChoice == 3){
-                res.send("You have already voted today.")
+
             }
         }
     } else {
@@ -247,8 +294,19 @@ app.get("/caption", async (req, res) => {
 
 
         const checkUsername = req.user.username;
-        const currentUsername = await Contest.findOne({ username: checkUsername });
-        if (!currentUsername) {
+        const checkCurrentDate = await Contest.findOne({ username: checkUsername });
+        console.log("checkCurrentDate in app.get: ", checkCurrentDate);
+        let thisDate;
+        if(checkCurrentDate){
+            thisDate = checkCurrentDate.contests.at(-1).date;
+        } else{
+            thisDate = -2;
+        }
+        
+
+
+
+        if (thisDate != contestDate) {
 
             // res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"})
 
@@ -269,50 +327,76 @@ app.get("/caption", async (req, res) => {
             })
 
         } else {
-            var currentChoice = currentUsername[contestDate].choice;
-            if(currentChoice == 1) {
+            var currentChoice = checkCurrentDate.contests.at(-1).choice;
+            if (currentChoice == 1) {
                 res.send("You have already given the caption.");
             }
-            if(currentChoice == 2) {
+            if (currentChoice == 2) {
                 res.send("You have chosen to vote other caption, you can't view this page.");
             }
-            if(currentChoice == 3) {
+            if (currentChoice == 3) {
                 res.send("You have already voted today.")
             }
-
         }
-        
-
-
     } else {
         res.redirect("/login");
     }
 });
+
+
+//Leaaderboard GET request
+app.get("/leaderboard", async (req, res) => {
+
+    if (req.isAuthenticated()) {
+        const lastD = d;
+        lastD.setDate(lastD.getDate() - 8);
+        var lastDate = lastD.toLocaleDateString('en-GB');
+        console.log(lastDate);
+
+        const findDoc = Contest.findOne({
+            [lastDate]: { choice: 3, votes: { $exists: true }, captionOrUsername: { $exists: true } }
+        }, function (err, result) {
+            if (result) {
+                console.log(result[lastDate]);
+            } else {
+                console.log(err);
+            }
+        });
+    } else {
+        res.redirect("/login");
+    }
+
+
+})
+
+
 
 app.get("/play", async (req, res) => {
     if (req.isAuthenticated()) {
 
         const checkUsername = req.user.username;
         const currentUsername = await Contest.findOne({ username: checkUsername });
+        try {
+            const checkPage = currentUsername.contests.at(-1).date;
 
-        if(!currentUsername){
+            console.log("THIS ONE LINE");
+            console.log(currentUsername);
+            console.log(checkPage);
+
+            if (checkPage != contestDate) {
+                res.render("playWithWarning");
+
+            } else {
+                res.render("play");
+            }
+        }
+        catch {
             res.render("playWithWarning");
 
-        } else {
-            res.render("play");
-            // const currentChoice = currentUsername[contestDate].choice;
-            // if(currentChoice == 1){
-            //     res.send("You have already captioned the image. You can't view this page now.")
-            // }
-            // if(currentChoice == 2){
-            //     res.render
-            // }
         }
 
-        
 
 
-        
     } else {
         res.redirect("/login");
     }
@@ -384,17 +468,21 @@ app.post("/caption", async (req, res) => {
             username: req.user.username,
             firstName: req.user.firstName,
             lastName: req.user.lastName,
-            [contestDate]: { choice: 1, votes: 0, captionOrUsername: req.body.captionsub }
+            contests: [{ date: contestDate, choice: 1, votes: 0, captionOrUsername: req.body.captionsub }]
+            
         });
         newContest.save();
         res.send("Added caption sucessfully.");
     } else {
-        const checkCurrentDate = await Contest.findOne({ username: checkUsername, [contestDate]: { $exists: true } });
-        console.log(checkCurrentDate);
-        if (!checkCurrentDate) {
+        
+        const checkCurrentDate = await Contest.findOne({ username: checkUsername });
+        const thisDate = checkCurrentDate.contests.at(-1).date;
+        console.log(thisDate);
+        if (thisDate != contestDate) {
+            var updateContest = { $push: { contests: [{ date: contestDate, choice: 1, votes: 0, captionOrUsername: req.body.captionsub }] } };
             Contest.updateOne(
                 { username: req.user.username },
-                { [contestDate]: { choice: 1, votes: 0, captionOrUsername: req.body.captionsub } }, function (err, cont) {
+                updateContest, function (err, cont) {
                     if (err) {
                         console.log(err);
                     } else {
@@ -417,57 +505,63 @@ app.post("/caption", async (req, res) => {
 //POST request on Vote page
 app.post("/vote", async (req, res) => {
     const votingUser = req.user.username;
-    const votedUser = captions[parseInt(req.body.captionID)].usr
-    console.log(votingUser);
-    console.log(votedUser);
+    const votedUser = captions[parseInt(req.body.captionID)].usr;
+    console.log("votingUser: ", votingUser);
+    console.log("votedUser: ", votedUser);
 
     //Updating details of voting user.
 
     const checkUsername = req.user.username;
     const currentUsername = await Contest.findOne({ username: checkUsername });
+    console.log("currentUsername in VOTE POST: \n", currentUsername);
 
-    if (!currentUsername) {
-        const newContest = new Contest({
-            username: req.user.username,
-            firstName: req.user.firstName,
-            lastName: req.user.lastName,
-            [contestDate]: { choice: 3, votes: 0, votedUsername: votedUser }
-        });
-        newContest.save();
-        console.log("Changed value of voting user successfully.")
-    } else {
-        Contest.updateOne(
-            { username: votingUser },
-            { [contestDate]: { choice: 3, votes: 0, votedUsername: votedUser } }, function (err, cont) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log("Changed value of voting user successfully.");
-                }
-            }
-        )
+    //Updating details of votingUser
+    Contest.updateOne({username: votingUser}, { contests: {date: contestDate, choice: 3, votes: 0, votedUsername: votedUser}}, function(err, doc){
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("Details of votingUser updated. \n", doc);
+        }
+    });
 
-    }
+    // Getting initial votes of the votedUser and assigning to new variables
 
-
-    //Getting current votes of the voteduser.
     const beingVotedUser = await Contest.findOne({ username: votedUser });
-    var currentVotes = beingVotedUser[contestDate].votes;
-    const caption = beingVotedUser[contestDate].captionOrUsername;
+    let currentVotes = beingVotedUser.contests.at(-1).votes;
+    console.log("Initial votes: ", currentVotes);
+    const currentCaption = beingVotedUser.contests.at(-1).captionOrUsername;
+    console.log("Initial votes: ", currentCaption);
+    let previousVotes = currentVotes;
     currentVotes++;
-    console.log(currentVotes);
 
-    //Updating votes    
+    // Removing previousVotes value
+
+    let popVotesQuery = { $pop: { contests: 1}};
     Contest.updateOne(
         { username: votedUser },
-        { [contestDate]: { choice: 1, votes: currentVotes, captionOrUsername: caption } }, function (err, cont) {
+        popVotesQuery, function(err, cont) {
             if (err) {
                 console.log(err);
             } else {
-                console.log("Votes updated successfully.")
+                console.log("Popped previous details now");
             }
         }
-    );
+    )
+
+    // Adding newVote value
+
+    let addVoteQuery = { $push: { contests: [{ date: contestDate, choice: 1, votes: currentVotes, captionOrUsername: currentCaption }]} };
+    Contest.updateOne(
+        { username: votedUser },
+        addVoteQuery, function (err, cont) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("Added new voting values");
+            }
+        }
+    )
+    res.send("Voted successsfully.")
 })
 
 
