@@ -152,10 +152,12 @@ const contestSchema = new mongoose.Schema({
     username: String,
     firstName: String,
     lastName: String,
+    totalPoints: {type: Number, default: 0},
     contests: [{
         date: String,
         choice: Number,
         votes: { type: Number, default: 0 },
+        points: {type: Number, default: 0},
         captionOrUsername: String,
         votedUsername: String
     }]
@@ -180,7 +182,7 @@ app.get("/vote", async (req, res) => {
                 username: req.user.username,
                 firstName: req.user.firstName,
                 lastName: req.user.lastName,
-                contests: [{ date: contestDate, choice: 2, votes: 0, votedUsername: "" }]
+                contests: [{ date: contestDate, choice: 2, votes: 0, points: 0, votedUsername: "" }]
             });
             newContest.save();
             captions = [];
@@ -203,12 +205,13 @@ app.get("/vote", async (req, res) => {
             console.log("Captions: ", captions);
 
         } else {
+            console.log("FIRST ELSE");
             var currentChoice = -1;
             const checkCurrentDate = await Contest.findOne({ username: checkUsername });
             thisDate = checkCurrentDate.contests.at(-1).date;
             if (thisDate == contestDate) {
                 currentChoice = checkCurrentDate.contests.at(-1).choice;
-            }
+            } //If you have already given the caption, then this condition works.
 
             if (currentChoice == 1) {
                 console.log("CURRENT CHOICE 1");
@@ -247,6 +250,7 @@ app.get("/vote", async (req, res) => {
                 console.log("THIS ONE");
                 captions = [];
                 var allDocs = await Contest.find().lean();
+                console.log("All documents are allDocs: \n", allDocs);
                 allDocs.forEach(elem1 => {
                     elem1.contests.forEach(elem2 => {
                         if (elem2.date == contestDate && elem2.choice == 1) {
@@ -254,17 +258,21 @@ app.get("/vote", async (req, res) => {
                                 usr: elem1.username,
                                 cpt: elem2.captionOrUsername
                             }
+                            console.log("thisCaption values: ", thisCaption);
+                            captions.push(thisCaption);
+                        thisCaption = {};
                         }
                     })
-                    captions.push(thisCaption);
-                    thisCaption = {};
+                    
                 });
+                console.log("Captions value inside the else block: ", captions);
 
 
                 const checkCurrentDate = await Contest.findOne({ username: checkUsername });
                 const thisDate = checkCurrentDate.contests.at(-1).date;
+                console.log("Value of thisDate: ", thisDate);
                 if (thisDate != contestDate) {
-                    var updateContest = { $push: { contests: [{ date: contestDate, choice: 2, votes: 0, votedUser: "" }] } };
+                    var updateContest = { $push: { contests: [{ date: contestDate, choice: 2, votes: 0, points: 0, votedUser: "" }] } };
                     Contest.updateOne(
                         { username: req.user.username },
                         updateContest, function (err, cont) {
@@ -283,6 +291,7 @@ app.get("/vote", async (req, res) => {
 
             }
         }
+        console.log("Final value of captions array: ", captions);
     } else {
         res.redirect("/login");
     }
@@ -308,23 +317,23 @@ app.get("/caption", async (req, res) => {
 
         if (thisDate != contestDate) {
 
-            // res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"})
+            res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"})
 
 
-            https.get("https://alpha-meme-maker.herokuapp.com/", function (response) {
-                let chunks = [];
+            // https.get("https://alpha-meme-maker.herokuapp.com/", function (response) {
+            //     let chunks = [];
 
-                response.on("data", function (data) {
-                    chunks.push(data);
-                }).on("end", function () {
-                    let data = Buffer.concat(chunks);
-                    const memeData = JSON.parse(data)
-                    const imageLink = memeData.data[19].image;
-                    console.log(imageLink);
-                    res.render("caption", { imagevar: imageLink });
-                })
+            //     response.on("data", function (data) {
+            //         chunks.push(data);
+            //     }).on("end", function () {
+            //         let data = Buffer.concat(chunks);
+            //         const memeData = JSON.parse(data)
+            //         const imageLink = memeData.data[19].image;
+            //         console.log(imageLink);
+            //         res.render("caption", { imagevar: imageLink });
+            //     })
 
-            })
+            // })
 
         } else {
             var currentChoice = checkCurrentDate.contests.at(-1).choice;
@@ -345,23 +354,91 @@ app.get("/caption", async (req, res) => {
 
 
 //Leaaderboard GET request
+let allCaptionVoters = [];
+let pointsTable = [];
+let individualPoints = {};
+let voterDetail = {};
+const lastD = d;
+lastD.setDate(lastD.getDate() + 1);
+let lastDate = lastD.toLocaleDateString('en-GB'); 
+console.log("lastDate value is: ", lastDate);
 app.get("/leaderboard", async (req, res) => {
 
     if (req.isAuthenticated()) {
-        const lastD = d;
-        lastD.setDate(lastD.getDate() - 8);
-        var lastDate = lastD.toLocaleDateString('en-GB');
-        console.log(lastDate);
+        console.log("Starting");
+        let findDocs = await Contest.find();
 
-        const findDoc = Contest.findOne({
-            [lastDate]: { choice: 3, votes: { $exists: true }, captionOrUsername: { $exists: true } }
-        }, function (err, result) {
-            if (result) {
-                console.log(result[lastDate]);
-            } else {
-                console.log(err);
-            }
+        findDocs.forEach(async function(findDoc){
+            let selectors = findDoc.contests;
+            
+            selectors.forEach(async function(selector){
+                if(selector.choice == 1 && selector.date == lastDate) {
+                    voterDetail = {
+                        captionGiver: findDoc.username,
+                        votes: selector.votes                        
+                    }
+
+                    allCaptionVoters.push(voterDetail);
+                    voterDetail = {};
+                }
+
+                // Adding points part from here
+
+                if(selector.choice == 1 && selector.date == lastDate){
+                    let points = selector.votes * 10;
+                    individualPoints = {
+                        username: findDoc.username,
+                        pt : points
+                    };
+                    pointsTable.push(individualPoints);
+                    console.log("Choice1: ", pointsTable);
+                    individualPoints = {};
+                }
+
+            })
+            
         });
+
+        //Second Loop
+                
+        console.log("Length of findDoc: ", findDocs.length);
+        findDocs.forEach(function(findDoc){
+            let selectors = findDoc.contests;
+            console.log("Length of selectors: ", selectors.length);
+            selectors.forEach(function(selector){
+
+                if(selector.choice == 3 && selector.date == lastDate){
+                        console.log("IF CONDITION TRUE Second loop");
+                        let votedUser = selector.votedUsername;
+                        allCaptionVoters.forEach(function(singleCaptionVoter){
+                            if(singleCaptionVoter.captionGiver == votedUser){
+                                let votedUserVotes = singleCaptionVoter.votes;
+                                let points = Math.floor(votedUserVotes*7.5);
+                                individualPoints = {
+                                    username: findDoc.username,
+                                    pt: points
+                                }
+                                pointsTable.push(individualPoints);
+                                console.log(`${findDoc.username} voted ${votedUser} who has ${votedUserVotes} ${individualPoints}`);
+                            }
+                        })
+            }})
+
+        });
+        
+
+        //Sorting according to points
+
+        pointsTable.sort(function(a, b){
+            return b.pt - a.pt;
+        });
+
+
+        res.render("leaderboard", { allPoints: pointsTable });
+
+        console.log("PointsTable: ", pointsTable);
+        pointsTable = [];
+        allCaptionVoters = [];
     } else {
         res.redirect("/login");
     }
@@ -378,10 +455,6 @@ app.get("/play", async (req, res) => {
         const currentUsername = await Contest.findOne({ username: checkUsername });
         try {
             const checkPage = currentUsername.contests.at(-1).date;
-
-            console.log("THIS ONE LINE");
-            console.log(currentUsername);
-            console.log(checkPage);
 
             if (checkPage != contestDate) {
                 res.render("playWithWarning");
@@ -468,7 +541,7 @@ app.post("/caption", async (req, res) => {
             username: req.user.username,
             firstName: req.user.firstName,
             lastName: req.user.lastName,
-            contests: [{ date: contestDate, choice: 1, votes: 0, captionOrUsername: req.body.captionsub }]
+            contests: [{ date: contestDate, choice: 1, votes: 0, points: 0, captionOrUsername: req.body.captionsub }]
             
         });
         newContest.save();
@@ -479,7 +552,7 @@ app.post("/caption", async (req, res) => {
         const thisDate = checkCurrentDate.contests.at(-1).date;
         console.log(thisDate);
         if (thisDate != contestDate) {
-            var updateContest = { $push: { contests: [{ date: contestDate, choice: 1, votes: 0, captionOrUsername: req.body.captionsub }] } };
+            var updateContest = { $push: { contests: [{ date: contestDate, choice: 1, votes: 0, points: 0, captionOrUsername: req.body.captionsub }] } };
             Contest.updateOne(
                 { username: req.user.username },
                 updateContest, function (err, cont) {
@@ -496,8 +569,6 @@ app.post("/caption", async (req, res) => {
         } else {
             res.send("You have already submitted today's caption.")
         }
-
-
     }
 });
 
@@ -516,13 +587,33 @@ app.post("/vote", async (req, res) => {
     console.log("currentUsername in VOTE POST: \n", currentUsername);
 
     //Updating details of votingUser
-    Contest.updateOne({username: votingUser}, { contests: {date: contestDate, choice: 3, votes: 0, votedUsername: votedUser}}, function(err, doc){
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("Details of votingUser updated. \n", doc);
+
+    let popPreviousChoiceQuery = { $pop: { contests: 1}};
+    Contest.updateOne(
+        { username: votingUser },
+        popPreviousChoiceQuery, function(err, cont) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("Popped previous choice now");
+                console.log(cont);
+            }
         }
-    });
+    )
+
+    let updateVotingUser = { $push: { contests: [{ date: contestDate, choice: 3, votes: 0, points: 0, votedUsername: votedUser }]} };
+    Contest.updateOne(
+        { username: votingUser },
+        updateVotingUser, function(err, doc){
+            if(err) {
+                console.log(err);
+            } else {
+                console.log("Details of votingUser updated. \n", doc);
+            }
+        });
+
+
+
 
     // Getting initial votes of the votedUser and assigning to new variables
 
@@ -531,7 +622,6 @@ app.post("/vote", async (req, res) => {
     console.log("Initial votes: ", currentVotes);
     const currentCaption = beingVotedUser.contests.at(-1).captionOrUsername;
     console.log("Initial votes: ", currentCaption);
-    let previousVotes = currentVotes;
     currentVotes++;
 
     // Removing previousVotes value
@@ -550,7 +640,7 @@ app.post("/vote", async (req, res) => {
 
     // Adding newVote value
 
-    let addVoteQuery = { $push: { contests: [{ date: contestDate, choice: 1, votes: currentVotes, captionOrUsername: currentCaption }]} };
+    let addVoteQuery = { $push: { contests: [{ date: contestDate, choice: 1, votes: currentVotes, points: 0, captionOrUsername: currentCaption }]} };
     Contest.updateOne(
         { username: votedUser },
         addVoteQuery, function (err, cont) {
