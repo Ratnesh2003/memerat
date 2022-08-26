@@ -1,6 +1,6 @@
 body{
     /* background-color: #F0EDFF; */
-    /*background-color: #0e141b; */
+    background-color: #0e141b;
     color: #182635;
     font-family: "Montserrat";
 }
@@ -11,8 +11,8 @@ h3{
     font-weight: 400;
     /* color: #878CF6; */
     color: #ed0f3c;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
     text-align: center;
 }
 
@@ -33,22 +33,26 @@ h2{
 
 .navbar-brand{
     padding-left: 30px;
+    font-family: "BioRhyme";
     /* color: #F0EDFF; */
     color: #dce0e3;
-    font-size: 1.6rem !important;
+    font-size: 1.8rem !important;
+    font-weight: 500;
 }
 
 .navbar-brand:hover{
     padding-left: 30px;
     /* color: #F0EDFF; */
     color: #ed0f3c;
-    font-size: 1.6rem !important;
+    font-size: 1.8rem !important;
+    font-weight: 500;
 }
 
 .nav-item{
     padding-left: 20px;
     padding-right: 10px;
-    font-size: 1.1rem !important;
+    font-size: 1.2rem !important;
+    font-weight: 500 !important;
 }
 
 .nav-link{
@@ -57,6 +61,15 @@ h2{
 
 .nav-link:hover{
     color: #ed0f3c;
+}
+
+.or{
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #dce0e3;
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+    text-align: center;
 }
 
 /* Middle Container */
@@ -72,8 +85,24 @@ h2{
 }
 
 .top-image{
-    width: 70%;
-    padding-left: 60px;
+    width: 65%;
+    margin-left: 90px;
+    /* padding-left: 60px; */
+    /* box-shadow: 10px 10px red; */
+}
+
+.play-now-button{
+    color: #0e141b;
+    font-family: "Montserrat";
+    font-weight: 500;
+}
+
+.about-section-text{
+    color:#dce0e3;
+    font-size: 1.2rem;
+    font-weight: 400;
+    font-family: "Montserrat";
+
 }
 
 /* Voting page reapeating image style */
@@ -81,6 +110,17 @@ h2{
     width: 80%;
     padding: 15px;
     object-fit: fill;
+}
+
+.caption-text-body{
+    padding: 4%;
+}
+
+.caption-text{
+    font-size: 1.5rem;
+    font-family: "Montserrat";
+    font-weight: 500;
+    color: #182635;
 }
 
 
@@ -95,6 +135,19 @@ h2{
     /* color: #878CF6; */
     color: #ed0f3c;
     text-align: center;
+}
+
+/* Instructions */
+.instructions-text{
+    color:#dce0e3;
+    font-size: 1.2rem;
+    padding: 5px 5px;
+}
+
+/* Caption Heading */
+.caption-heading{
+    color:#dce0e3;
+    font-size: 1.3rem;
 }
 
 .home-container{
@@ -134,13 +187,15 @@ h2{
 
 .about-img-left{
     margin-right: 30px;
-    width: 25%;
+    width: 17rem;
+    height: 17rem;
     float: left;
 }
 
 .about-img-right{
-    margin-right: 30px;
-    width: 25%;
+    margin-left: 30px;
+    width: 17rem;
+    height: 17rem;
     float: right;
 }
 
@@ -150,18 +205,84 @@ h2{
 
 /* Footer */
 
-#footer{
+/* #footer{
     padding: 4%;
     text-align: center;
-    /* background-color: #5F5F90; */
     background-color: #182635;
 }
 
 .social-icon{
-    margin: 20px 10px;
+    margin: 20px 16px;
+} */
+
+
+
+/* TEST START */
+footer{
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #182635;
+    height: auto;
+    width: 100vw;
+    padding-top: 40px;
+    color: #fff;
 }
 
+.footer-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+.footer-content h4{
+    font-family: "BioRhyme";
+    font-size: 2.1rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    line-height: 3rem;
+}
 
+.footer-content p{
+    max-width: 500px;
+    margin: 10px auto;
+    line-height: 28px;
+    font-size: 1.1rem;
+    color: #cacdd2;
+}
+
+.socials{
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0 3rem 0;
+}
+
+.socials li{
+    margin: 0 10px;
+}
+
+.socials a{
+    text-decoration: none;
+    color: #dce0e3;
+    border: 1.1px solid white;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.socials a i{
+    font-size: 1.1rem;
+    width: 20px;
+    transition: color .4s ease;
+}
+
+.socials a:hover i{
+    color: #ed0f3c;
+}
+
+/* TEST END */
 
 /* Login form */
 .login-form{
@@ -185,7 +306,9 @@ a:hover {
 
 i {
     color: #dce0e3;
+
 }
+
 
 
 /* Color Palette

@@ -10,7 +10,7 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
-const { stringify } = require('querystring');
+// const { stringify } = require('querystring');
 
 
 
@@ -129,6 +129,7 @@ app.get("/register", function (req, res) {
 
 app.get("/login", async (req, res) => {
 
+
     let Docs = [];
     var allDocs = await Contest.find().lean();
     allDocs.forEach(elem1 => {
@@ -139,6 +140,18 @@ app.get("/login", async (req, res) => {
         })
     });
     res.render("login");
+    contestDate
+
+
+});
+
+//Logout route
+
+app.get('/logout', function(req, res, next) {
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/');
+    });
 });
 
 
@@ -175,6 +188,27 @@ app.get("/vote", async (req, res) => {
         const checkUsername = req.user.username;
         const currentUsername = await Contest.findOne({ username: checkUsername, });
 
+
+        function sendMemeImage(destination){
+            https.get("https://api.imgflip.com/get_memes", function(response) {
+                let chunks = [];
+                response.on("data", function(data){
+                    chunks.push(data);
+                }).on("end", function(){
+                    let data = Buffer.concat(chunks);
+                    let memeData = JSON.parse(data);
+                    console.log(memeData.success);
+                    if(memeData.success) {
+                        const imageLink = memeData.data.memes[memeImageNumber].url;
+                        console.log(imageLink, "KJDSFKJ");
+                        res.render(destination, {imagevar: imageLink, allCaptions: captions});
+                    }
+                })
+            });
+        }
+
+
+
         if (!currentUsername) {
             console.log("CURRENT USER DOES NOT EXIST");
 
@@ -201,7 +235,8 @@ app.get("/vote", async (req, res) => {
                 })
                 
             });
-            res.render("vote", { allCaptions: captions });
+            sendMemeImage("vote")
+            // res.render("vote", { allCaptions: captions });
             console.log("Captions: ", captions);
 
         } else {
@@ -239,8 +274,8 @@ app.get("/vote", async (req, res) => {
                     })
                 });
 
-
-                res.render("vote", { allCaptions: captions });
+                sendMemeImage("vote");
+                // res.render("vote", { allCaptions: captions });
                 console.log("Captions in 2nd choice: ", captions);
             }
             else if (currentChoice == 3) {
@@ -285,10 +320,9 @@ app.get("/vote", async (req, res) => {
                         }
                     );
                 } else {
-                    res.render("vote", { allCaptions: captions });
+                    sendMemeImage("vote");
+                    // res.render("vote", { allCaptions: captions });
                 }
-
-
             }
         }
         console.log("Final value of captions array: ", captions);
@@ -296,6 +330,14 @@ app.get("/vote", async (req, res) => {
         res.redirect("/login");
     }
 });
+
+//Creating the variable to change memes per day
+let memeStartDate = new Date('08/25/2022');
+let todayDate = new Date();
+let differenceOfTime = Math.abs(todayDate - memeStartDate);
+let memeImageNumber = Math.floor(Math.abs(differenceOfTime / (1000*60*60*24)));
+console.log("MemeImageNumber: ", memeImageNumber);
+
 
 //Caption the image page and routes
 app.get("/caption", async (req, res) => {
@@ -317,7 +359,22 @@ app.get("/caption", async (req, res) => {
 
         if (thisDate != contestDate) {
 
-            res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"})
+            // res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"});
+
+            https.get("https://api.imgflip.com/get_memes", function(response) {
+                let chunks = [];
+                response.on("data", function(data){
+                    chunks.push(data);
+                }).on("end", function(){
+                    let data = Buffer.concat(chunks);
+                    let memeData = JSON.parse(data);
+                    console.log(memeData.success);
+                    if(memeData.success) {
+                        const imageLink = memeData.data.memes[memeImageNumber].url;
+                        res.render("caption", {imagevar: imageLink});
+                    }
+                })
+            });
 
 
             // https.get("https://alpha-meme-maker.herokuapp.com/", function (response) {
@@ -359,7 +416,7 @@ let pointsTable = [];
 let individualPoints = {};
 let voterDetail = {};
 const lastD = d;
-lastD.setDate(lastD.getDate() + 1);
+lastD.setDate(lastD.getDate() - 1);
 let lastDate = lastD.toLocaleDateString('en-GB'); 
 console.log("lastDate value is: ", lastDate);
 app.get("/leaderboard", async (req, res) => {
@@ -453,18 +510,41 @@ app.get("/play", async (req, res) => {
 
         const checkUsername = req.user.username;
         const currentUsername = await Contest.findOne({ username: checkUsername });
+
+        function sendMemeImage(destination){
+            https.get("https://api.imgflip.com/get_memes", function(response) {
+                let chunks = [];
+                response.on("data", function(data){
+                    chunks.push(data);
+                }).on("end", function(){
+                    let data = Buffer.concat(chunks);
+                    let memeData = JSON.parse(data);
+                    console.log(memeData.success);
+                    if(memeData.success) {
+                        const imageLink = memeData.data.memes[memeImageNumber].url;
+                        res.render(destination, {imagevar: imageLink});
+                    }
+                })
+            });
+        }
+
+
+
         try {
             const checkPage = currentUsername.contests.at(-1).date;
 
             if (checkPage != contestDate) {
-                res.render("playWithWarning");
+                sendMemeImage("playWithWarning");
+                // res.render("playWithWarning");
 
             } else {
-                res.render("play");
+                sendMemeImage("play");
+                // res.render("play");
             }
         }
         catch {
-            res.render("playWithWarning");
+            // res.render("playWithWarning");
+            sendMemeImage("playWithWarning");
 
         }
 
@@ -528,6 +608,7 @@ app.post("/login", function (req, res) {
         }
     });
 });
+
 
 //Post request on Caption page
 app.post("/caption", async (req, res) => {
