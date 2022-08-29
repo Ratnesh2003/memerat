@@ -145,12 +145,13 @@ app.get("/login", async (req, res) => {
 
 });
 
+
 //Logout route
 
-app.get('/logout', function(req, res, next) {
-    req.logout(function(err) {
-      if (err) { return next(err); }
-      res.redirect('/');
+app.get('/logout', function (req, res, next) {
+    req.logout(function (err) {
+        if (err) { return next(err); }
+        res.redirect('/');
     });
 });
 
@@ -165,12 +166,12 @@ const contestSchema = new mongoose.Schema({
     username: String,
     firstName: String,
     lastName: String,
-    totalPoints: {type: Number, default: 0},
+    totalPoints: { type: Number, default: 0 },
     contests: [{
         date: String,
         choice: Number,
         votes: { type: Number, default: 0 },
-        points: {type: Number, default: 0},
+        points: { type: Number, default: 0 },
         captionOrUsername: String,
         votedUsername: String
     }]
@@ -189,19 +190,19 @@ app.get("/vote", async (req, res) => {
         const currentUsername = await Contest.findOne({ username: checkUsername, });
 
 
-        function sendMemeImage(destination){
-            https.get("https://api.imgflip.com/get_memes", function(response) {
+        function sendMemeImage(destination) {
+            https.get("https://api.imgflip.com/get_memes", function (response) {
                 let chunks = [];
-                response.on("data", function(data){
+                response.on("data", function (data) {
                     chunks.push(data);
-                }).on("end", function(){
+                }).on("end", function () {
                     let data = Buffer.concat(chunks);
                     let memeData = JSON.parse(data);
                     console.log(memeData.success);
-                    if(memeData.success) {
+                    if (memeData.success) {
                         const imageLink = memeData.data.memes[memeImageNumber].url;
                         console.log(imageLink, "KJDSFKJ");
-                        res.render(destination, {imagevar: imageLink, allCaptions: captions});
+                        res.render(destination, { imagevar: imageLink, allCaptions: captions });
                     }
                 })
             });
@@ -233,7 +234,7 @@ app.get("/vote", async (req, res) => {
                         thisCaption = {};
                     }
                 })
-                
+
             });
             sendMemeImage("vote")
             // res.render("vote", { allCaptions: captions });
@@ -250,7 +251,8 @@ app.get("/vote", async (req, res) => {
 
             if (currentChoice == 1) {
                 console.log("CURRENT CHOICE 1");
-                res.send("You have already given the caption today.")
+                res.render("alreadyCaptioned");
+                // res.send("You have already given the caption today.")
             }
             else if (currentChoice == 2) {
                 console.log("CURRENT CHOICE 2");
@@ -280,7 +282,8 @@ app.get("/vote", async (req, res) => {
             }
             else if (currentChoice == 3) {
                 console.log("CURRENT CHOICE 3");
-                res.send("You have already voted today.")
+                res.render("alreadyVoted");
+                // res.send("You have already voted today.")
             } else {
                 console.log("THIS ONE");
                 captions = [];
@@ -295,10 +298,10 @@ app.get("/vote", async (req, res) => {
                             }
                             console.log("thisCaption values: ", thisCaption);
                             captions.push(thisCaption);
-                        thisCaption = {};
+                            thisCaption = {};
                         }
                     })
-                    
+
                 });
                 console.log("Captions value inside the else block: ", captions);
 
@@ -315,7 +318,7 @@ app.get("/vote", async (req, res) => {
                                 console.log(err);
                             } else {
                                 console.log("Updated items: ", cont);
-                                res.render("vote", { allCaptions: captions });
+                                sendMemeImage("vote");
                             }
                         }
                     );
@@ -335,7 +338,7 @@ app.get("/vote", async (req, res) => {
 let memeStartDate = new Date('08/25/2022');
 let todayDate = new Date();
 let differenceOfTime = Math.abs(todayDate - memeStartDate);
-let memeImageNumber = Math.floor(Math.abs(differenceOfTime / (1000*60*60*24)));
+let memeImageNumber = Math.floor(Math.abs(differenceOfTime / (1000 * 60 * 60 * 24)));
 console.log("MemeImageNumber: ", memeImageNumber);
 
 
@@ -348,12 +351,12 @@ app.get("/caption", async (req, res) => {
         const checkCurrentDate = await Contest.findOne({ username: checkUsername });
         console.log("checkCurrentDate in app.get: ", checkCurrentDate);
         let thisDate;
-        if(checkCurrentDate){
+        if (checkCurrentDate) {
             thisDate = checkCurrentDate.contests.at(-1).date;
-        } else{
+        } else {
             thisDate = -2;
         }
-        
+
 
 
 
@@ -361,17 +364,17 @@ app.get("/caption", async (req, res) => {
 
             // res.render("caption", {imagevar: "https://indianmemetemplates.com/wp-content/uploads/all-the-things.jpg"});
 
-            https.get("https://api.imgflip.com/get_memes", function(response) {
+            https.get("https://api.imgflip.com/get_memes", function (response) {
                 let chunks = [];
-                response.on("data", function(data){
+                response.on("data", function (data) {
                     chunks.push(data);
-                }).on("end", function(){
+                }).on("end", function () {
                     let data = Buffer.concat(chunks);
                     let memeData = JSON.parse(data);
                     console.log(memeData.success);
-                    if(memeData.success) {
+                    if (memeData.success) {
                         const imageLink = memeData.data.memes[memeImageNumber].url;
-                        res.render("caption", {imagevar: imageLink});
+                        res.render("caption", { imagevar: imageLink });
                     }
                 })
             });
@@ -395,13 +398,16 @@ app.get("/caption", async (req, res) => {
         } else {
             var currentChoice = checkCurrentDate.contests.at(-1).choice;
             if (currentChoice == 1) {
-                res.send("You have already given the caption.");
+                // res.send("You have already given the caption.");
+                res.render("alreadyCaptioned");
             }
             if (currentChoice == 2) {
-                res.send("You have chosen to vote other caption, you can't view this page.");
+                // res.send("You have chosen to vote other caption, you can't view this page.");
+                res.render("voteOther")
             }
             if (currentChoice == 3) {
-                res.send("You have already voted today.")
+                // res.send("You have already voted today.")
+                res.render("alreadyVoted");
             }
         }
     } else {
@@ -411,95 +417,179 @@ app.get("/caption", async (req, res) => {
 
 
 //Leaaderboard GET request
-let allCaptionVoters = [];
-let pointsTable = [];
+let lastContestPoints1 = [];
+let lastContestPoints3 = [];
+let pointsTable1 = [];
+let pointsTable2 = [];
+let finalPointsTable = [];
 let individualPoints = {};
-let voterDetail = {};
+
+//Test New Last Points
+let lastContestVoterDetails = [];
+let lastContestIndividualDetail = {};
+
 const lastD = d;
 lastD.setDate(lastD.getDate() - 1);
-let lastDate = lastD.toLocaleDateString('en-GB'); 
+let lastDate = lastD.toLocaleDateString('en-GB');
 console.log("lastDate value is: ", lastDate);
-app.get("/leaderboard", async (req, res) => {
 
+
+app.get("/leaderboard", async (req, res) => {
+    let points = 0;
+    let lastDayPoints = 0
+    let lastDayPointsChoice3 = 0;
     if (req.isAuthenticated()) {
         console.log("Starting");
         let findDocs = await Contest.find();
 
-        findDocs.forEach(async function(findDoc){
+        findDocs.forEach(async function (findDoc) {
             let selectors = findDoc.contests;
-            
-            selectors.forEach(async function(selector){
-                if(selector.choice == 1 && selector.date == lastDate) {
-                    voterDetail = {
-                        captionGiver: findDoc.username,
-                        votes: selector.votes                        
-                    }
 
-                    allCaptionVoters.push(voterDetail);
-                    voterDetail = {};
+
+            selectors.forEach(async function (selector) {
+                if (selector.choice == 1) {
+                    points += selector.votes * 100;
+                    // console.log(findDoc.username, selector.votes, points);
                 }
 
-                // Adding points part from here
-
-                if(selector.choice == 1 && selector.date == lastDate){
-                    let points = selector.votes * 10;
-                    individualPoints = {
-                        username: findDoc.username,
-                        pt : points
-                    };
-                    pointsTable.push(individualPoints);
-                    console.log("Choice1: ", pointsTable);
-                    individualPoints = {};
+                // Adding last day points
+                if (selector.choice == 1 && selector.date == lastDate){
+                    lastDayPoints = selector.votes * 100;
+                    
                 }
 
             })
-            
+            lastDayPointsObj = {
+                username: findDoc.username,
+                lastPoints: lastDayPoints
+            }
+            lastContestPoints1.push(lastDayPointsObj);
+            lastDayPoints = 0;
+
+            individualPoints = {
+                username: findDoc.username,
+                pt: points
+            };
+            pointsTable1.push(individualPoints);
+            // console.log(individualPoints);
+            points = 0;
+
         });
+
+        const allDocs = await Contest.find();
 
         //Second Loop
-                
-        console.log("Length of findDoc: ", findDocs.length);
-        findDocs.forEach(function(findDoc){
+        findDocs.forEach(async function (findDoc) {
             let selectors = findDoc.contests;
-            console.log("Length of selectors: ", selectors.length);
-            selectors.forEach(function(selector){
 
-                if(selector.choice == 3 && selector.date == lastDate){
-                        console.log("IF CONDITION TRUE Second loop");
-                        let votedUser = selector.votedUsername;
-                        allCaptionVoters.forEach(function(singleCaptionVoter){
-                            if(singleCaptionVoter.captionGiver == votedUser){
-                                let votedUserVotes = singleCaptionVoter.votes;
-                                let points = Math.floor(votedUserVotes*7.5);
-                                individualPoints = {
-                                    username: findDoc.username,
-                                    pt: points
+            selectors.forEach(async function (selector) {
+                if (selector.choice == 3) {
+                    let votedDetails = {
+                        votedUsername: selector.votedUsername,
+                        dateVoted: selector.date
+                    }
+
+
+                    allDocs.forEach(function (requiredDoc) {
+                        if (requiredDoc.username == votedDetails.votedUsername) {
+
+                            let votedUserContests = requiredDoc.contests;
+                            votedUserContests.forEach(function (votedContest) {
+                                if (votedContest.date == votedDetails.dateVoted) {
+                                    console.log(`CurrentUser: ${findDoc.username}, votedUser: ${votedDetails.votedUsername}, votes: ${votedContest.votes}, points: ${points}`)
+                                    console.log("VOTEDUSERVOTES: ", votedContest.votes, points);
+                                    points += votedContest.votes * 75;
                                 }
-                                pointsTable.push(individualPoints);
-                                console.log(`${findDoc.username} voted ${votedUser} who has ${votedUserVotes} ${individualPoints}`);
-                            }
-                        })
-            }})
+                            })
 
+                        }
+                    })
+                }
+
+                //IF CHOICE 3, INDIVIDUAL POINTS CODE
+                if (selector.choice == 3 && selector.date == lastDate){
+                    
+                    let lastDayVotedUser = selector.votedUsername;
+                    allDocs.forEach(function(requiredDoc){
+                        if (requiredDoc.username == lastDayVotedUser) {
+                            let votedUserContests = requiredDoc.contests;
+                            votedUserContests.forEach(function(votedContest) {
+                                lastDayPointsChoice3 = votedContest.votes * 75; 
+                            })
+                        }
+                    })
+                }
+
+            })
+            // console.log(findDoc.firstName, findDoc.lastName);
+            lastDayPointsObj = {
+                username: findDoc.username,
+                lastPoints: lastDayPointsChoice3
+            }
+
+            individualPoints = {
+                username: findDoc.username,
+                pt: points
+            };
+            
+            lastContestPoints3.push(lastDayPointsObj);
+            pointsTable2.push(individualPoints);
+            // console.log(individualPoints);
+            points = 0;
+            lastDayPointsChoice3 = 0;
+        })
+        console.log("LAST DAY NEW POINTS: ", lastContestPoints3);
+        //Combining the points table
+
+        console.log("Last contest points: ", lastContestPoints1);
+
+        function mergeTables(t1, t2, t3, t4){
+            let i = 0;
+
+            while(i < t1.length){
+                if(t1[i].username == t2[i].username && t1[i].username == t3[i].username && t1[i].username == t4[i].username){
+                    let totalPoints = t1[i].pt + t2[i].pt;
+                    let totalLastDayPoints = t3[i].lastPoints + t4[i].lastPoints;
+                    finalPointsTable.push({ username: t1[i].username, pt: totalPoints, lastPt: totalLastDayPoints}); 
+                }
+                i++;
+            }
+            
+            return finalPointsTable;
+        }
+
+        mergeTables(pointsTable1, pointsTable2, lastContestPoints1, lastContestPoints3);
+
+        //Fetching full name
+        let allUserDocs = await User.find();
+        allUserDocs.forEach(Doc => {
+            finalPointsTable.forEach(user => {
+                if(user.username === Doc.username){
+                    fullN = Doc.firstName + ' ' + Doc.lastName;
+                    user.fullName = fullN;
+                }
+            })            
         });
-        
+
 
         //Sorting according to points
 
-        pointsTable.sort(function(a, b){
+        finalPointsTable.sort(function(a, b){
             return b.pt - a.pt;
         });
 
+        res.render("leaderboard", { allPoints: finalPointsTable });
+        console.log(finalPointsTable);
+        finalPointsTable = [];
+        pointsTable1 = [];
+        pointsTable2 = [];
 
-        res.render("leaderboard", { allPoints: pointsTable });
 
-        console.log("PointsTable: ", pointsTable);
-        pointsTable = [];
-        allCaptionVoters = [];
-    } else {
+        
+        // console.log(pointsTable2);
+    } else{
         res.redirect("/login");
     }
-
 
 })
 
@@ -511,18 +601,18 @@ app.get("/play", async (req, res) => {
         const checkUsername = req.user.username;
         const currentUsername = await Contest.findOne({ username: checkUsername });
 
-        function sendMemeImage(destination){
-            https.get("https://api.imgflip.com/get_memes", function(response) {
+        function sendMemeImage(destination) {
+            https.get("https://api.imgflip.com/get_memes", function (response) {
                 let chunks = [];
-                response.on("data", function(data){
+                response.on("data", function (data) {
                     chunks.push(data);
-                }).on("end", function(){
+                }).on("end", function () {
                     let data = Buffer.concat(chunks);
                     let memeData = JSON.parse(data);
                     console.log(memeData.success);
-                    if(memeData.success) {
+                    if (memeData.success) {
                         const imageLink = memeData.data.memes[memeImageNumber].url;
-                        res.render(destination, {imagevar: imageLink});
+                        res.render(destination, { imagevar: imageLink });
                     }
                 })
             });
@@ -591,23 +681,13 @@ app.post("/register", function (req, res) {
     });
 });
 
-// Login route
-app.post("/login", function (req, res) {
-    const user = new User({
-        username: req.body.username,
-        password: req.body.password
-    });
 
-    req.login(user, function (err) {
-        if (err) {
-            console.log(err);
-        } else {
-            passport.authenticate("local")(req, res, function () {
-                res.redirect("/play");
-            });
-        }
-    });
-});
+
+app.post('/login',
+  passport.authenticate('local', { failureRedirect: '/login', failureMessage: true }),
+  function(req, res) {
+    res.redirect('/play');
+  });
 
 
 //Post request on Caption page
@@ -623,12 +703,13 @@ app.post("/caption", async (req, res) => {
             firstName: req.user.firstName,
             lastName: req.user.lastName,
             contests: [{ date: contestDate, choice: 1, votes: 0, points: 0, captionOrUsername: req.body.captionsub }]
-            
+
         });
         newContest.save();
-        res.send("Added caption sucessfully.");
+        // res.send("Added caption sucessfully.");
+        res.render("addedCaption");
     } else {
-        
+
         const checkCurrentDate = await Contest.findOne({ username: checkUsername });
         const thisDate = checkCurrentDate.contests.at(-1).date;
         console.log(thisDate);
@@ -641,14 +722,16 @@ app.post("/caption", async (req, res) => {
                         console.log(err);
                     } else {
                         console.log("Updated items: ", cont);
-                        res.send("Added caption successfully.")
+                        // res.send("Added caption successfully.")
+                        res.render("addedCaption");
                     }
                 }
             );
 
 
         } else {
-            res.send("You have already submitted today's caption.")
+            // res.send("You have already submitted today's caption.")
+            res.render("alreadyCaptioned")
         }
     }
 });
@@ -669,10 +752,10 @@ app.post("/vote", async (req, res) => {
 
     //Updating details of votingUser
 
-    let popPreviousChoiceQuery = { $pop: { contests: 1}};
+    let popPreviousChoiceQuery = { $pop: { contests: 1 } };
     Contest.updateOne(
         { username: votingUser },
-        popPreviousChoiceQuery, function(err, cont) {
+        popPreviousChoiceQuery, function (err, cont) {
             if (err) {
                 console.log(err);
             } else {
@@ -682,11 +765,11 @@ app.post("/vote", async (req, res) => {
         }
     )
 
-    let updateVotingUser = { $push: { contests: [{ date: contestDate, choice: 3, votes: 0, points: 0, votedUsername: votedUser }]} };
+    let updateVotingUser = { $push: { contests: [{ date: contestDate, choice: 3, votes: 0, points: 0, votedUsername: votedUser }] } };
     Contest.updateOne(
         { username: votingUser },
-        updateVotingUser, function(err, doc){
-            if(err) {
+        updateVotingUser, function (err, doc) {
+            if (err) {
                 console.log(err);
             } else {
                 console.log("Details of votingUser updated. \n", doc);
@@ -700,17 +783,29 @@ app.post("/vote", async (req, res) => {
 
     const beingVotedUser = await Contest.findOne({ username: votedUser });
     let currentVotes = beingVotedUser.contests.at(-1).votes;
-    console.log("Initial votes: ", currentVotes);
+    let currPointsOfVotedUser = beingVotedUser.contests.at(-1).points;
+    let currPointsOfVotingUser = currentUsername.contests.at(-1).points;
+    let totalPointsOfVotedUser = beingVotedUser.totalPoints;
+    let totalPointsOfVotingUser = currentUsername.totalPoints;
+
+    console.log("Initial points of Voted User: ", currPointsOfVotedUser);
+    console.log("Initial points of Voting User: ", currPointsOfVotingUser);
+    console.log("Initial votes of beingVotedUser: ", currentVotes);
+    console.log("Total Points of VotingUser: ", totalPointsOfVotingUser);
+    console.log("Total points of VotedUser: ", totalPointsOfVotedUser);
     const currentCaption = beingVotedUser.contests.at(-1).captionOrUsername;
-    console.log("Initial votes: ", currentCaption);
+    console.log("Initial caption: ", currentCaption);
+
     currentVotes++;
+    // currPointsOfVotedUser = 10*currentVotes;
+    // currPointsOf
 
     // Removing previousVotes value
 
-    let popVotesQuery = { $pop: { contests: 1}};
+    let popVotesQuery = { $pop: { contests: 1 } };
     Contest.updateOne(
         { username: votedUser },
-        popVotesQuery, function(err, cont) {
+        popVotesQuery, function (err, cont) {
             if (err) {
                 console.log(err);
             } else {
@@ -721,7 +816,7 @@ app.post("/vote", async (req, res) => {
 
     // Adding newVote value
 
-    let addVoteQuery = { $push: { contests: [{ date: contestDate, choice: 1, votes: currentVotes, points: 0, captionOrUsername: currentCaption }]} };
+    let addVoteQuery = { $push: { contests: [{ date: contestDate, choice: 1, votes: currentVotes, points: 0, captionOrUsername: currentCaption }] } };
     Contest.updateOne(
         { username: votedUser },
         addVoteQuery, function (err, cont) {
@@ -732,7 +827,8 @@ app.post("/vote", async (req, res) => {
             }
         }
     )
-    res.send("Voted successsfully.")
+    // res.send("Voted successsfully.")
+    res.render("votedSuccessfully");
 })
 
 

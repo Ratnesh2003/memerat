@@ -5,19 +5,19 @@
 
         <!-- Email Input -->
         <div class="form-outline mb-3">
-            <label for="form1email" class="form-label">Email address</label>
+            <label for="form1email" class="form-label login-headings">Email address</label>
             <input type="email" id="form1email" class="form-control" name="username">
         </div>
 
         <!-- Password input -->
         <div class="form-outline mb-4">
-            <label for="form1password" class="form-label">Password</label>
+            <label for="form1password" class="form-label login-headings">Password</label>
             <input type="password" id="form1password" class="form-control" name="password">
         </div>
 
         <div class="row">
             <div class="col form-check remember-me-center">
-                <label class="form-check-label" for="form1checkbox">Remember me</label>
+                <label class="form-check-label login-headings" for="form1checkbox">Remember me</label>
                 <input class="form-check-input" type="checkbox" id="form1checkbox">
             </div>
 
@@ -32,11 +32,11 @@
 
         <!--Register button-->
         <div class="text-center">
-            <p>Not a member? <a href="register">Register</a></p>
-            <p>or sign in with: </p>
+            <p class="login-headings">Not a member ? <a href="register"><u>Register</u></a></p>
+            <p class="login-headings">or sign in with: </p>
 
-            <button type="button" class="btn btn-link btn-floating mx-1">
-                <a href="/auth/google"><i class="fab fa-google"></i></a>
+            <button type="button" class="btn  btn-danger mx-1">
+                <a class="no-hover" href="/auth/google"><i class="fab fa-google"></i> Google</a>
             </button>
         </div>
 

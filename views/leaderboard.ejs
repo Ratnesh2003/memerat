@@ -1,23 +1,33 @@
 <%- include("partials/playHeader") %> 
 
-<table class="table">
-    <thead class="table-dark">
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Name</th>
-        <th scope="col">Points</th>
-        <th scope="col">Caption</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% for (let i=0; i<allPoints.length; i++){ %>
-        <tr>
-          <th scope="row"><%= i+1 %></th>
-          <td><%= allPoints[i].username %></td>
-          <td><%= allPoints[i].pt %></td>
-        </tr>
-      <% } %> 
-    </tbody>
-  </table>
+
+  <section>
+    <h1 class="heading" style="color: #ffc107">Rankings</h1>
+
+    <div class="table-responsive leaderboard-div bg-body rounded">
+      <table class="table table-secondary table-borderless leaderboard-table">
+        <thead class="table">
+          <tr>
+            <th class="col leaderboard-heading">#</th>
+            <th class="col leaderboard-heading">Name</th>
+            <th class="col leaderboard-heading">Total Score</th>
+            <th class="col leaderboard-heading">Last Day Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(let i=0; i<allPoints.length; i++){ %>
+            <tr>
+              <th class="leaderboard-column" scope="row"><%= i+1 %> </th>
+              <td class="leaderboard-column"><%= allPoints[i].fullName %></td>
+              <td class="leaderboard-column"><%= allPoints[i].pt %></td>
+              <td class="leaderboard-column"><%= allPoints[i].lastPt %> </td>
+            </tr>
+          <% } %>
+        </tbody>
+
+      </table>
+    </div>
+
+  </section>
 
 <%- include("partials/footer") %> 

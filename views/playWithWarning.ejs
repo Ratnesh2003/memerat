@@ -1,6 +1,6 @@
 <%- include("partials/playHeader") %> 
 
-<section>
+<section class="choice-section">
 
     <h1 class="heading">Image of the day</h1>
 
@@ -9,12 +9,12 @@
         <div class="row home-container">
             <div class="col-lg-6 col-sm-12">
                 <p class="home-text"><a href="/caption">Creative thoughts? Caption the image</a></p>
-                <h3>OR</h3>
+                <p class="or">OR</p>
                 <p class="home-text"><a href="/vote" onclick="return confirm('If you proceed, you won\'t be able to caption the given image today. Do you wish to proceed?')">Feeling less confident? Vote captions by others</a></p>
             </div>
 
             <div class="col-lg-6 col-sm-12">
-                <img class="top-image" src="<%= imagevar %>" alt="">
+                <img class="top-image shadow p-3 mb-5 bg-body rounded" src="<%= imagevar %>" alt="">
             </div>
         </div>
     </div>

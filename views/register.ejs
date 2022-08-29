@@ -6,25 +6,25 @@
         <!--Name Input-->
         <div class="row mb-3">
             <div class="col">
-                <label class="form-label" for="form1name1">First name</label>
+                <label class="form-label login-headings" for="form1name1">First name</label>
                 <input class="form-control" type="text" id="form1name1" name="fname">
             </div>
 
             <div class="col">
-                <label class="form-label" for="form1name2">Last name</label>
+                <label class="form-label login-headings" for="form1name2">Last name</label>
                 <input class="form-control" type="text" id="form1name2" name="lname">
             </div>
         </div>
 
         <!-- Email Input -->
         <div class="form-outline mb-3">
-            <label for="form1email" class="form-label">Email address</label>
+            <label for="form1email" class="form-label login-headings">Email address</label>
             <input type="email" id="form1email" class="form-control" name="username">
         </div>
 
         <!-- Password input -->
         <div class="form-outline mb-4">
-            <label for="form1password" class="form-label">Password</label>
+            <label for="form1password" class="form-label login-headings">Password</label>
             <input type="password" id="form1password" class="form-control" name="password">
         </div>
 
@@ -36,11 +36,11 @@
 
         <!--Register button-->
         <div class="text-center">
-            <p>Already a member? <a href="login">Login</a></p>
-            <p>or sign up with: </p>
+            <p class="login-headings">Already a member? <a href="login"><u>Login</u></a></p>
+            <p class="login-headings">or sign up with: </p>
 
-            <button type="button" class="btn btn-link btn-floating mx-1">
-                <a href="/auth/google"><i class="fab fa-google"></i></a>
+            <button type="button" class="btn btn-danger mx-1">
+                <a class="no-hover" href="/auth/google"><i class="fab fa-google"></i> Google</a>
             </button>
 
         </div>

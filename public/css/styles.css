@@ -120,7 +120,7 @@ h2{
     font-size: 1.5rem;
     font-family: "Montserrat";
     font-weight: 500;
-    color: #182635;
+    color: #dce0e3;
 }
 
 
@@ -289,12 +289,26 @@ footer{
     margin: 7rem 30rem 4rem;
 }
 
+.login-headings{
+    color: #dce0e3 !important;
+    font-size: 1.1rem;
+}
+
+.no-hover:hover{
+    color: #dce0e3;
+}
+
 .remember-me-center{
     padding: 0 4.5rem;
     margin-bottom: 2rem;
 }
 
 /* PlayHome */
+
+.choice-section{
+    padding-bottom: 50px;
+}
+
 a {
     text-decoration: none;
     color: #dce0e3;    
@@ -309,6 +323,96 @@ i {
 
 }
 
+.dropdown-menu{
+    min-width: 60px;
+}
+
+/* Leaderboard */
+/* @media( max-width: 200px) {
+    .leaderboard-div{
+        margin: 0;
+    }
+    
+} */
+@media( min-width: 500px) {
+    .leaderboard-div{
+        margin: 3rem 10rem;
+    }
+
+    .leaderboard-heading{
+
+        background-color: #083E4E !important;
+        color: #F0FAFF;
+        font-size: 1.8rem;
+        font-family: "Montserrat";
+        padding: 1rem !important;
+        text-align: center;
+        vertical-align: middle;
+        max-width: 10rem !important;
+    
+    
+    }
+    .leaderboard-column{
+    
+        background-color: #F0FAFF !important;
+        color: #0e141b !important;
+        font-family: "Montserrat";
+        padding-top: 0.8rem !important;
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+
+
+}
+@media( max-width: 800px){
+    .leaderboard-div{
+        margin: 3rem 0.4rem;
+    }
+
+    .leaderboard-heading{
+
+        background-color: #083E4E !important;
+        color: #F0FAFF;
+        font-size: 1.1rem;
+        font-family: "Montserrat";
+        /* padding: 0.8rem !important; */
+        text-align: center;
+        vertical-align: middle;
+        max-width: 10rem !important;
+    
+    
+    }
+    .leaderboard-column{
+    
+        background-color: #F0FAFF !important;
+        color: #0e141b !important;
+        font-family: "Montserrat";
+        padding-top: 0.7rem !important;
+        font-size: 1rem;
+        text-align: center;
+    }
+  
+}
+/* .leaderboard-div{
+    /* background-color: #cacdd2;
+    padding: 1rem 10rem;
+    margin: 3rem 10rem;
+} */
+
+/* .leaderboard-table{
+     background-color: red !important; 
+} */
+
+
+
+/* End pages */
+.end-pages{
+    text-align: center;
+    padding: 10rem 25rem;
+    color: #cacdd2;
+    font-family: "Montserrat";
+}
 
 
 /* Color Palette
